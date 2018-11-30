@@ -5,7 +5,7 @@
 #include <queue>
 #include <vector>
 using namespace std;
-typedef vector< pair< int, int > > route;
+typedef vector< int > route;
 class graph{
 public:
     graph(int, int, int);
@@ -15,17 +15,19 @@ public:
     void BFS();
     void DFS();
     void DFS_search(int, int);
+    route BFS_route(int, int);
     int pos(int y, int x){return y*width+x;}
+    pair<int, int> reversepos(int);
     void print_origin();
     void print(string);
-    void print_bestroute(int, int);
+    //void print_bestroute(int, int);
     int checkspace(int, int);
     void generateroute();
 private:
     vector< int > mapping;
     vector< int > dist;
-    vector< route > bestroute;
-    vector< bool > visited;
+    //vector< route > bestroute;
+    //vector< bool > mapping;
     route predecessor;
     route originroute;
     route finalroute;
@@ -43,7 +45,7 @@ int main(int argc, char *argv[])
     file.open(buffer,ios::in);
     int m,n,battery;
     file>>m>>n>>battery;
-    cin>>m>>n>>battery;
+    //cin>>m>>n>>battery;
     graph ma(m,n,battery);
     int needtoclear=0;
     for(int i=0;i<m;i++){
@@ -66,12 +68,19 @@ int main(int argc, char *argv[])
         }
     }
     ma.renew(needtoclear);
+    cout<<"test"<<endl;
     ma.BFS();
+    cout<<"test2"<<endl;
     ma.DFS();
+    cout<<"test3"<<endl;
     ma.generateroute();
+    cout<<"test4"<<endl;
+    ma.print_origin();
+    cout<<"test5"<<endl;
     buffer=argv[1];
     buffer = "./"+buffer+"/final.path";
     ma.print(buffer);
+    cout<<"test6"<<endl;
     //ma.print("test");
     return 0;
 }
@@ -82,8 +91,8 @@ graph::graph(int m,int n,int bat){
     cleared=0;
     mapping.resize(m*n);
     dist.resize(m*n);
-    bestroute.resize(m*n);
-    visited.resize(m*n);
+    //bestroute.resize(m*n);
+    //mapping.resize(m*n);
     predecessor.resize(m*n);
 }
 void graph::insertnode(int i,int j,int value){
@@ -91,71 +100,71 @@ void graph::insertnode(int i,int j,int value){
     if(value==9999){
         xofr=j;
         yofr=i;
-        visited[pos(i, j)] = true;
+        mapping[pos(i, j)] = true;
         dist[pos(i, j)] = 0;
-    }else if(value==0) visited[pos(i, j)] = false;
+    }else if(value==0) mapping[pos(i, j)] = false;
     else{
-        visited[pos(i, j)] = true;
+        mapping[pos(i, j)] = true;
         dist[pos(i, j)] = -1;
     }
 }
 void graph::BFS(){
-    queue< pair< int, int > > q;
-    q.push(make_pair(yofr, xofr));
-    queue< route > qq;
-    route r,copyr,router;
-    r.push_back(make_pair(yofr, xofr));
-    bestroute[pos(yofr, xofr)]=r;
-    qq.push(r);
+    queue< int > q;
+    q.push(pos(yofr, xofr));
+    //queue< route > qq;
+    //route r,copyr,router;
+    //r.push_back(make_pair(yofr, xofr));
+    //bestroute[pos(yofr, xofr)]=r;
+    //qq.push(r);
     while(!q.empty()){
         int i,j;
-        i=q.front().first;
-        j=q.front().second;
+        i=reversepos(q.front()).first;
+        j=reversepos(q.front()).second;
         q.pop();
-        copyr=qq.front();
-        qq.pop();
+        //copyr=qq.front();
+        //qq.pop();
         if(i!=0){
-            if(!visited[pos(i-1, j)]){
-                q.push(make_pair(i-1,j));
+            if(mapping[pos(i-1, j)]==0){
+                q.push(pos(i-1, j));
                 dist[pos(i-1, j)]=dist[pos(i, j)]+1;
-                visited[pos(i-1, j)]=true;
-                router=copyr;
-                router.push_back(make_pair(i-1,j));
-                bestroute[pos(i-1, j)]=router;
-                qq.push(router);
+                mapping[pos(i-1, j)]=2;
+                //router=copyr;
+                //router.push_back(int(i-1,j));
+                //bestroute[pos(i-1, j)]=router;
+                //qq.push(router);
             }
         }
         if(i!=height-1){
-            if(!visited[pos(i+1, j)]){
-                q.push(make_pair(i+1,j));
+            if(mapping[pos(i+1, j)]==0){
+                q.push(pos(i+1, j));
                 dist[pos(i+1, j)]=dist[pos(i, j)]+1;
-                visited[pos(i+1, j)]=true;
-                router=copyr;
-                router.push_back(make_pair(i+1,j));
-                bestroute[pos(i+1, j)]=router;
-                qq.push(router);
+                mapping[pos(i+1, j)]=2;
+                //router=copyr;
+                //router.push_back(make_pair(i+1,j));
+                //bestroute[pos(i+1, j)]=router;
+                //qq.push(router);
             }
         }
         if(j!=0){
-            if(!visited[pos(i, j-1)]){
-                q.push(make_pair(i,j-1));
+            if(mapping[pos(i, j-1)]==0){
+                q.push(pos(i, j-1));
                 dist[pos(i, j-1)]=dist[pos(i, j)]+1;
-                visited[pos(i, j-1)]=true;
-                router=copyr;
-                router.push_back(make_pair(i,j-1));
-                bestroute[pos(i, j-1)]=router;
-                qq.push(router);
+                mapping[pos(i, j-1)]=2;
+                //router=copyr;
+                //router.push_back(make_pair(i,j-1));
+                //bestroute[pos(i, j-1)]=router;
+                //qq.push(router);
             }
         }
         if(j!=width-1){
-            if(!visited[pos(i, j+1)]){
-                q.push(make_pair(i,j+1));
+            if(mapping[pos(i, j+1)]==0){
+                q.push(pos(i, j+1));
                 dist[pos(i, j+1)]=dist[pos(i, j)]+1;
-                visited[pos(i, j+1)]=true;
-                router=copyr;
-                router.push_back(make_pair(i,j+1));
-                bestroute[pos(i, j+1)]=router;
-                qq.push(router);
+                mapping[pos(i, j+1)]=2;
+                //router=copyr;
+                //router.push_back(make_pair(i,j+1));
+                //bestroute[pos(i, j+1)]=router;
+                //qq.push(router);
             }
         }
     }
@@ -166,51 +175,54 @@ void graph::DFS(){
 void graph::DFS_search(int rooty, int rootx){
     if(checkspace(rooty, rootx)==0){
         if(cleared==dirtyfloor) return;
-        pair<int, int> previous=predecessor[pos(rooty, rootx)];
-        while(checkspace(previous.first, previous.second)==0){
-            originroute.push_back(previous);
-            previous=predecessor[pos(previous.first, previous.second)];
+        int previous=predecessor[pos(rooty, rootx)];
+        while(checkspace(reversepos(previous).first, reversepos(previous).second)==0){
+            //originroute.push_back(previous);
+            previous=predecessor[previous];
         }
-        originroute.push_back(previous);
+        route newroute=BFS_route(pos(rooty,rootx),previous);
+        for(int i=1;i<newroute.size();i++){
+            originroute.push_back(newroute[i]);
+        }
         return;
     }
     else{
         if(rootx!=width-1){
-            if(mapping[pos(rooty, rootx+1)]==0){
-                //visited[pos(rooty, rootx+1)]=true;
-                originroute.push_back(make_pair(rooty, rootx+1));
-                predecessor[pos(rooty, rootx+1)]=make_pair(rooty, rootx);
-                mapping[pos(rooty, rootx+1)]=2;
+            if(mapping[pos(rooty, rootx+1)]==2){
+                //mapping[pos(rooty, rootx+1)]=true;
+                originroute.push_back(pos(rooty, rootx+1));
+                predecessor[pos(rooty, rootx+1)]=pos(rooty, rootx);
+                mapping[pos(rooty, rootx+1)]=3;
                 cleared++;
                 DFS_search(rooty, rootx+1);
             }
         }
         if(rootx!=0){
-            if(mapping[pos(rooty, rootx-1)]==0){
-                //visited[pos(rooty, rootx-1)]=true;
-                originroute.push_back(make_pair(rooty, rootx-1));
-                predecessor[pos(rooty, rootx-1)]=make_pair(rooty, rootx);
-                mapping[pos(rooty, rootx-1)]=2;
+            if(mapping[pos(rooty, rootx-1)]==2){
+                //mapping[pos(rooty, rootx-1)]=true;
+                originroute.push_back(pos(rooty, rootx-1));
+                predecessor[pos(rooty, rootx-1)]=pos(rooty, rootx);
+                mapping[pos(rooty, rootx-1)]=3;
                 cleared++;
                 DFS_search(rooty, rootx-1);
             }
         }
         if(rooty!=height-1){
-            if(mapping[pos(rooty+1, rootx)]==0){
-                //visited[pos(rooty+1, rootx)]=true;
-                originroute.push_back(make_pair(rooty+1, rootx));
-                predecessor[pos(rooty+1, rootx)]=make_pair(rooty+1, rootx);
-                mapping[pos(rooty+1, rootx)]=2;
+            if(mapping[pos(rooty+1, rootx)]==2){
+                //mapping[pos(rooty+1, rootx)]=true;
+                originroute.push_back(pos(rooty+1, rootx));
+                predecessor[pos(rooty+1, rootx)]=pos(rooty+1, rootx);
+                mapping[pos(rooty+1, rootx)]=3;
                 cleared++;
                 DFS_search(rooty+1, rootx);
             }
         }
         if(rooty!=0){
-            if(mapping[pos(rooty-1, rootx)]==0){
-                //visited[pos(rooty-1, rootx)]=true;
-                originroute.push_back(make_pair(rooty-1, rootx));
-                predecessor[pos(rooty-1, rootx)]=make_pair(rooty, rootx);
-                mapping[pos(rooty-1, rootx)]=2;
+            if(mapping[pos(rooty-1, rootx)]==2){
+                //mapping[pos(rooty-1, rootx)]=true;
+                originroute.push_back(pos(rooty-1, rootx));
+                predecessor[pos(rooty-1, rootx)]=pos(rooty, rootx);
+                mapping[pos(rooty-1, rootx)]=3;
                 cleared++;
                 DFS_search(rooty-1, rootx);
             }
@@ -220,7 +232,7 @@ void graph::DFS_search(int rooty, int rootx){
 void graph::print_origin(){
     cout<<originroute.size()<<endl;
     for(int i=0;i<originroute.size();i++){
-        cout<<originroute[i].first<<' '<<originroute[i].second<<endl;
+        cout<<originroute[i]/width<<' '<<originroute[i]%width<<endl;
     }
 }
 void graph::print(string buffer){
@@ -228,29 +240,29 @@ void graph::print(string buffer){
     file.open(buffer,ios::out);
     file<<finalroute.size()<<endl;
     for(int i=0;i<finalroute.size();i++){
-        file<<finalroute[i].first<<' '<<finalroute[i].second<<endl;
+        file<<finalroute[i]/width<<' '<<finalroute[i]%width<<endl;
     }
 }
-void graph::print_bestroute(int m, int n){
+/*void graph::print_bestroute(int m, int n){
     cout<<endl<<bestroute[pos(m,n)].size()<<endl;
     for(int i=0;i<bestroute[pos(m,n)].size();i++){
         cout<<bestroute[pos(m,n)][i].first<<' '<<bestroute[pos(m,n)][i].second<<endl;
     }
     cout<<endl;
-}
+}*/
 int graph::checkspace(int rooty,int rootx){
     int space=0;
     if(rooty!=height-1){
-        if(mapping[pos(rooty+1,rootx)]==0) space++;
+        if(mapping[pos(rooty+1,rootx)]==2) space++;
     }
     if(rooty!=0){
-        if(mapping[pos(rooty-1,rootx)]==0) space++;
+        if(mapping[pos(rooty-1,rootx)]==2) space++;
     }
     if(rootx!=width-1){
-        if(mapping[pos(rooty,rootx+1)]==0) space++;
+        if(mapping[pos(rooty,rootx+1)]==2) space++;
     }
     if(rootx!=0){
-        if(mapping[pos(rooty,rootx-1)]==0) space++;
+        if(mapping[pos(rooty,rootx-1)]==2) space++;
     }
     return space;
 }
@@ -260,20 +272,113 @@ void graph::generateroute(){
         finalroute.push_back(originroute[i]);
         batterynow++;
         if(i!=originroute.size()-1){
-            if(batterynow+1+dist[pos(originroute[i+1].first, originroute[i+1].second)]>battery){
-                for(int j=dist[pos(originroute[i].first, originroute[i].second)]-1;j>0;j--){
-                    finalroute.push_back(bestroute[pos(originroute[i].first, originroute[i].second)][j]);
+            if(batterynow+1+dist[originroute[i+1]]>battery){
+                cout<<"check"<<endl;
+                route newroute=BFS_route(originroute[i+1], pos(yofr, xofr));
+                for(int j=1;j<newroute.size();j++){
+                    finalroute.push_back(newroute[j]);
                 }
                 batterynow=0;
-                for(int j=0;j<dist[pos(originroute[i+1].first, originroute[i+1].second)];j++){
-                    finalroute.push_back(bestroute[pos(originroute[i+1].first, originroute[i+1].second)][j]);
+                for(int j=newroute.size()-2;j>0;j--){
+                    finalroute.push_back(newroute[j]);
                     batterynow++;
                 }
             }
         }
 
     }
-    for(int j=dist[pos(originroute[originroute.size()-1].first, originroute[originroute.size()-1].second)]-1;j>=0;j--){
-        finalroute.push_back(bestroute[pos(originroute[originroute.size()-1].first, originroute[originroute.size()-1].second)][j]);
+    route last=BFS_route(originroute[originroute.size()-1], pos(yofr, xofr));
+    for(int j=1;j<last.size();j++){
+        finalroute.push_back(last[j]);
     }
+}
+pair<int, int> graph::reversepos(int i){
+    pair<int, int> re;
+    re.first=i/width;
+    re.second=i%width;
+    return re;
+}
+route graph::BFS_route(int start, int goal){
+    cout<<"test7"<<endl;
+    queue< route > qq;//queue for route
+    queue< int > q;//queue for node
+    vector< bool > visited;
+    visited.resize(width*height);
+    visited.assign(width*height, false);
+    q.push(start);
+    route r,rr;
+    r.push_back(start);
+    qq.push(r);
+    while(!q.empty()){
+        int i=q.front();
+        q.pop();
+        r=qq.front();
+        qq.pop();
+        if(i/width!=0){
+            if((mapping[i-width]==2||mapping[i-width]==3||i-width==goal)&&!visited[i-width]){
+                if(i-width==goal){
+                    cout<<"check2"<<endl;
+                    r.push_back(i-width);
+                    break;
+                }
+                else{
+                    visited[i-width]=true;
+                    q.push(i-width);
+                    rr=r;
+                    rr.push_back(i-width);
+                    qq.push(rr);
+                }
+            }
+        }
+        if(i/width!=height-1){
+            if((mapping[i+width]==2||mapping[i+width]==3||i+width==goal)&&!visited[i+width]){
+                if(i+width==goal){
+                    cout<<"check3"<<endl;
+                    r.push_back(i+width);
+                    break;
+                }
+                else{
+                    visited[i+width]=true;
+                    q.push(i+width);
+                    rr=r;
+                    rr.push_back(i+width);
+                    qq.push(rr);
+                }
+            }
+        }
+        if(i%width!=0){
+            if((mapping[i-1]==2||mapping[i-1]==3||i-1==goal)&&!visited[i-1]){
+                if(i-1==goal){
+                    cout<<"check4"<<endl;
+                    r.push_back(i-1);
+                    break;
+                }
+                else{
+                    visited[i-1]=true;
+                    q.push(i-1);
+                    rr=r;
+                    rr.push_back(i-1);
+                    qq.push(rr);
+                }
+            }
+        }
+        if(i%width!=width-1){
+            if((mapping[i+1]==2||mapping[i+1]==3||i+1==goal)&&!visited[i+1]){
+                if(i+1==goal){
+                    cout<<"check5"<<endl;
+                    r.push_back(i+1);
+                    break;
+                }
+                else{
+                    visited[i+1]=true;
+                    q.push(i+1);
+                    rr=r;
+                    rr.push_back(i+1);
+                    qq.push(rr);
+                }
+            }
+        }
+    }
+    rr.clear();
+    return r;
 }
